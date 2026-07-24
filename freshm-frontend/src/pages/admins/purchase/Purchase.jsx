@@ -1,6 +1,5 @@
-
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getAllPurchases } from "../../../services/purchaseService";
 
 import {
   Box,
@@ -16,31 +15,18 @@ import {
   TableRow,
   Paper,
   Chip,
+  Avatar,
+  Stack,
 } from "@mui/material";
 
-import { Add } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import {
+  Person,
+  Add,
+} from "@mui/icons-material";
 
-const purchases = [
-  {
-    id: 1,
-    purchaseCode: "PUR001",
-    vendor: "Shree Traders",
-    article: "Wheat",
-    qty: "500 Kg",
-    amount: "₹25000",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    purchaseCode: "PUR002",
-    vendor: "Green Agro",
-    article: "Soybean",
-    qty: "300 Kg",
-    amount: "₹18000",
-    status: "Paid",
-  },
-];
+import {
+  useNavigate
+} from "react-router-dom";
 
 const palette = {
   forestDeep: "#0B2F22",
@@ -54,8 +40,54 @@ const palette = {
   line: "rgba(201,162,75,0.35)",
 };
 
+const purchases = [
+
+
+  {
+    id: 1,
+    purchaseCode: "PUR001",
+    vendor: "Shree Traders",
+    article: "Wheat",
+    qty: "500 Kg",
+    amount: "₹25000",
+    status: "Pending"
+  },
+
+
+  {
+    id: 2,
+    purchaseCode: "PUR002",
+    vendor: "Green Agro",
+    article: "Soybean",
+    qty: "300 Kg",
+    amount: "₹18000",
+    status: "Paid"
+  }
+
+
+];
+
+
+
 export default function Purchase() {
+
+
   const navigate = useNavigate();
+  const [purchases, setPurchases] = useState([]);
+  useEffect(() => {
+    loadPurchases();
+  }, []);
+  const loadPurchases = async () => {
+    try {
+      const data = await getAllPurchases();
+      console.log("Purchase Data:", data);
+      setPurchases(data);
+    } catch (error) {
+      console.error("Error loading purchases:", error);
+    }
+  };
+
+
 
   return (
     <Box
@@ -89,7 +121,7 @@ export default function Purchase() {
               mt: 1,
             }}
           >
-            Manage all ERP purchases from one place.
+            Manage all purchase records from one place.
           </Typography>
         </Box>
 
@@ -103,9 +135,12 @@ export default function Purchase() {
             borderRadius: 3,
             textTransform: "none",
             fontWeight: 700,
-            background: "linear-gradient(135deg,#0F2E20,#0B2F22)",
+            background:
+              "linear-gradient(135deg,#0F2E20,#0B2F22)",
+
             "&:hover": {
-              background: "linear-gradient(135deg,#081F16,#0B2F22)",
+              background:
+                "linear-gradient(135deg,#081F16,#0B2F22)",
             },
           }}
         >
@@ -143,13 +178,17 @@ export default function Purchase() {
           >
             <Table>
               <TableHead>
-                <TableRow sx={{ background: palette.paperDim }}>
-                  <TableCell><b>Purchase Code</b></TableCell>
-                  <TableCell><b>Vendor</b></TableCell>
-                  <TableCell><b>Article</b></TableCell>
-                  <TableCell><b>Quantity</b></TableCell>
-                  <TableCell><b>Amount</b></TableCell>
-                  <TableCell><b>Payment Status</b></TableCell>
+                <TableRow
+                  sx={{
+                    background: palette.paperDim,
+                  }}
+                >
+                  <TableCell>Purchase Number</TableCell>
+                  <TableCell>Vendor / Farmer</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell>Total Quantity</TableCell>
+                  <TableCell>Total Amount</TableCell>
+                  <TableCell>Payment Status</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -164,16 +203,45 @@ export default function Purchase() {
                       },
                     }}
                   >
-                    <TableCell>{item.purchaseCode}</TableCell>
-                    <TableCell>{item.vendor}</TableCell>
-                    <TableCell>{item.article}</TableCell>
-                    <TableCell>{item.qty}</TableCell>
-                    <TableCell>{item.amount}</TableCell>
+                    <TableCell>
+                      <Typography fontWeight={600}>
+                        {item.purchaseNumber}
+                      </Typography>
+                    </TableCell>
+
+                    <TableCell>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar
+                          sx={{
+                            bgcolor: palette.forest,
+                          }}
+                        >
+                          <Person />
+                        </Avatar>
+
+                        <Typography fontWeight={600}>
+                          {item.vendorName || item.farmerName}
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+
+                    <TableCell>
+                      {item.items?.[0]?.productName}
+                    </TableCell>
+
+                    <TableCell>
+                      {item.totalQuantity}
+                    </TableCell>
+
+                    <TableCell>
+                      ₹{item.totalAmount}
+                    </TableCell>
+
                     <TableCell>
                       <Chip
-                        label={item.status}
+                        label={item.paymentStatus}
                         color={
-                          item.status === "Paid"
+                          item.paymentStatus === "PAID"
                             ? "success"
                             : "warning"
                         }

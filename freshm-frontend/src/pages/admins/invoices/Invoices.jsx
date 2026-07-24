@@ -1,44 +1,42 @@
 
 
-import React from "react";
+
+
+
+
+
+
+
+
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Box,
   Typography,
-  Button,
   Card,
   CardContent,
+  Button,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
   Paper,
   Chip,
+  IconButton,
+  Stack,
+  Avatar,
 } from "@mui/material";
 
-import { Add } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-
-const invoices = [
-  {
-    id: 1,
-    invoiceNo: "INV001",
-    customer: "ABC Traders",
-    amount: "₹50,000",
-    date: "10-07-2026",
-    status: "Paid",
-  },
-  {
-    id: 2,
-    invoiceNo: "INV002",
-    customer: "XYZ Agro",
-    amount: "₹35,000",
-    date: "15-07-2026",
-    status: "Pending",
-  },
-];
+import {
+  Add,
+  Visibility,
+  Download,
+  Delete,
+  Person,
+} from "@mui/icons-material";
 
 const palette = {
   forestDeep: "#0B2F22",
@@ -53,48 +51,67 @@ const palette = {
 };
 
 export default function Invoices() {
+
   const navigate = useNavigate();
 
+  const [rows] = useState([
+    {
+      id: 1,
+      invoice: "INV001",
+      vendor: "ABC Traders",
+      amount: "₹25,000",
+      status: "Paid",
+    },
+    {
+      id: 2,
+      invoice: "INV002",
+      vendor: "Fresh Vegetables",
+      amount: "₹18,000",
+      status: "Pending",
+    },
+  ]);
+
   return (
+
     <Box
-      sx={{
-        p: 4,
-        background: palette.paperDim,
-        minHeight: "100vh",
-      }}
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      mb={4}
     >
+
+      <Typography
+        sx={{
+          fontFamily: "'Fraunces', serif",
+          fontSize: 34,
+          fontWeight: 600,
+          color: palette.ink,
+        }}
+      >
+        Purchase Invoices
+      </Typography>
+
+
+      <Typography
+        sx={{
+          color: palette.inkSoft,
+          mt: 1,
+        }}
+      >
+        Manage all purchase invoices from one place.
+      </Typography>
+
       <Box
         display="flex"
-        justifyContent="space-between"
-        alignItems="center"
+        justifyContent="center"
+        mt={3}
         mb={4}
       >
-        <Box>
-          <Typography
-            sx={{
-              fontFamily: "'Fraunces', serif",
-              fontSize: 34,
-              fontWeight: 600,
-              color: palette.ink,
-            }}
-          >
-            Invoices
-          </Typography>
-
-          <Typography
-            sx={{
-              color: palette.inkSoft,
-              mt: 1,
-            }}
-          >
-            Manage all ERP invoices from one place.
-          </Typography>
-        </Box>
 
         <Button
           startIcon={<Add />}
           variant="contained"
-          onClick={() => navigate("/admin/invoices/add")}
+          onClick={() => navigate("/admin/invoices/create")}
           sx={{
             px: 3,
             height: 50,
@@ -110,7 +127,6 @@ export default function Invoices() {
           Create Invoice
         </Button>
       </Box>
-
       <Card
         elevation={0}
         sx={{
@@ -121,6 +137,7 @@ export default function Invoices() {
         }}
       >
         <CardContent sx={{ p: 4 }}>
+
           <Typography
             sx={{
               fontFamily: "'Fraunces', serif",
@@ -140,53 +157,130 @@ export default function Invoices() {
             }}
           >
             <Table>
+
               <TableHead>
                 <TableRow
                   sx={{
                     background: palette.paperDim,
                   }}
                 >
-                  <TableCell><b>Invoice No</b></TableCell>
-                  <TableCell><b>Customer</b></TableCell>
-                  <TableCell><b>Amount</b></TableCell>
-                  <TableCell><b>Date</b></TableCell>
-                  <TableCell><b>Status</b></TableCell>
+                  <TableCell>Invoice No</TableCell>
+                  <TableCell>Vendor</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {invoices.map((invoice) => (
+                {rows.map((row) => (
                   <TableRow
-                    key={invoice.id}
+                    key={row.id}
                     hover
                     sx={{
                       "&:hover": {
-                        background: "#FCFBF7",
+                        background: "#FCFAF4",
                       },
                     }}
                   >
-                    <TableCell>{invoice.invoiceNo}</TableCell>
-                    <TableCell>{invoice.customer}</TableCell>
-                    <TableCell>{invoice.amount}</TableCell>
-                    <TableCell>{invoice.date}</TableCell>
+                    {/* Invoice Number */}
+
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        color: "#16231C",
+                      }}
+                    >
+                      {row.invoice}
+                    </TableCell>
+
+                    {/* Vendor */}
+
+                    <TableCell>
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="center"
+                      >
+                        <Avatar
+                          sx={{
+                            bgcolor: palette.forest,
+                          }}
+                        >
+                          <Person />
+                        </Avatar>
+
+                        <Typography fontWeight={600}>
+                          {row.vendor}
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+
+                    {/* Amount */}
+
+                    <TableCell>
+                      <Typography
+                        sx={{
+                          color: palette.forest,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {row.amount}
+                      </Typography>
+                    </TableCell>
+
+
+                    {/* Status */}
+
                     <TableCell>
                       <Chip
-                        label={invoice.status}
-                        color={
-                          invoice.status === "Paid"
-                            ? "success"
-                            : "warning"
-                        }
+                        label={row.status}
+                        color={row.status === "Paid" ? "success" : "warning"}
                         variant="outlined"
                       />
                     </TableCell>
+
+
+                    {/* Actions */}
+
+                    <TableCell align="center">
+
+                      <IconButton
+                        color="primary"
+                        onClick={() => navigate(`/admin/invoices/view/${row.id}`)}
+                      >
+                        <Visibility />
+                      </IconButton>
+
+                      <IconButton
+                        color="success"
+                        onClick={() => console.log("Download", row.id)}
+                      >
+                        <Download />
+                      </IconButton>
+
+                      <IconButton
+                        color="error"
+                        onClick={() => console.log("Delete", row.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+
+                    </TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
+
           </TableContainer>
+
         </CardContent>
+
       </Card>
+
     </Box>
+
   );
 }

@@ -139,19 +139,19 @@ from "../pages/admins/company/LetterHeadSettings";
 // User
 
 import UserDashboard
-from "../pages/user/UserDashboard";
+from "../pages/users/UserDashboard";
 
 
 import ReceivedMaterial
-from "../pages/user/ReceivedMaterial";
+from "../pages/users/ReceivedMaterial";
 
 
 import UserPayments
-from "../pages/user/UserPayments";
+from "../pages/users/UserPayments";
 
 
 import UserInvoices
-from "../pages/user/UserInvoices";
+from "../pages/users/UserInvoices";
 
 
 
