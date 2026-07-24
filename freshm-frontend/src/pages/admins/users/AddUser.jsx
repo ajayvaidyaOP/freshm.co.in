@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import api from "../../../services/api";
 
+
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -42,15 +42,12 @@ const fieldSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
     background: "#fff",
-
     "& fieldset": {
       borderColor: "rgba(0,0,0,.12)",
     },
-
     "&:hover fieldset": {
       borderColor: palette.sage,
     },
-
     "&.Mui-focused fieldset": {
       borderColor: palette.forest,
       borderWidth: 1.5,
@@ -61,7 +58,7 @@ const fieldSx = {
 export default function AddUser() {
   const [userCode, setUserCode] = useState("");
 
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     mobile: "",
@@ -69,43 +66,45 @@ export default function AddUser() {
     role: "USER",
   });
 
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const saveUser = async () => {
-    try {
-      const payload = {
-        ...form,
-        userCode,
-      };
-
-      const res = await api.post("/users", payload);
-
-      alert("User Created Successfully");
-      console.log(res.data);
-
-      setForm({
-        fullName: "",
-        email: "",
-        mobile: "",
-        password: "",
-        role: "USER",
-      });
-
-      setUserCode("");
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Error creating user");
-    }
-  };
-
   const generateCode = () => {
     const code = "USR" + Math.floor(1000 + Math.random() * 9000);
     setUserCode(code);
+  };
+
+  const handleSave = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+console.log("User:", user);
+
+const response = await fetch("http://localhost:8080/api/users", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${user?.token}`,
+  },
+  body: JSON.stringify(formData),
+});
+      if (response.ok) {
+        alert("User Created Successfully");
+
+        setFormData({
+          fullName: "",
+          email: "",
+          mobile: "",
+          password: "",
+          role: "USER",
+        });
+
+        setUserCode("");
+      } else {
+        const error = await response.text();
+        alert(error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server Error");
+    }
   };
 
   return (
@@ -166,11 +165,15 @@ export default function AddUser() {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                name="fullName"
                 label="Full Name"
-                value={form.fullName}
-                onChange={handleChange}
-                sx={fieldSx}
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    fullName: e.target.value,
+                  })
+                }
+                sx={fieldSx}          
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -184,10 +187,14 @@ export default function AddUser() {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                name="email"
                 label="Email Address"
-                value={form.email}
-                onChange={handleChange}
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value,
+                  })
+                }
                 sx={fieldSx}
                 InputProps={{
                   startAdornment: (
@@ -202,10 +209,14 @@ export default function AddUser() {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                name="mobile"
                 label="Mobile Number"
-                value={form.mobile}
-                onChange={handleChange}
+                value={formData.mobile}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    mobile: e.target.value,
+                  })
+                }
                 sx={fieldSx}
                 InputProps={{
                   startAdornment: (
@@ -221,10 +232,14 @@ export default function AddUser() {
               <TextField
                 select
                 fullWidth
-                name="role"
                 label="Role"
-                value={form.role}
-                onChange={handleChange}
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value,
+                  })
+                }
                 sx={fieldSx}
               >
                 <MenuItem value="USER">USER</MenuItem>
@@ -236,10 +251,14 @@ export default function AddUser() {
               <TextField
                 fullWidth
                 type="password"
-                name="password"
                 label="Password"
-                value={form.password}
-                onChange={handleChange}
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    password: e.target.value,
+                  })
+                }
                 sx={fieldSx}
                 InputProps={{
                   startAdornment: (
@@ -264,10 +283,6 @@ export default function AddUser() {
                   color: palette.forest,
                   textTransform: "none",
                   fontWeight: 700,
-                  "&:hover": {
-                    borderColor: palette.forestDeep,
-                    background: "#f8f8f8",
-                  },
                 }}
               >
                 Generate User Code
@@ -288,9 +303,9 @@ export default function AddUser() {
 
             <Grid item xs={12}>
               <Button
-                variant="contained"
                 startIcon={<Save />}
-                onClick={saveUser}
+                variant="contained"
+                onClick={handleSave}
                 sx={{
                   mt: 2,
                   px: 5,
@@ -300,10 +315,6 @@ export default function AddUser() {
                   fontWeight: 700,
                   background:
                     "linear-gradient(135deg,#0F2E20,#0B2F22)",
-                  "&:hover": {
-                    background:
-                      "linear-gradient(135deg,#081F16,#0B2F22)",
-                  },
                 }}
               >
                 Save User
@@ -315,4 +326,3 @@ export default function AddUser() {
     </Box>
   );
 }
-
